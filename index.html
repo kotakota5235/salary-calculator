@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#176b55">
+  <meta name="description" content="シフト表を貼り付けてアルバイトの給料見込みを計算。時間帯別の時給と土日祝日に対応。">
+  <title>アルバイト給料見込み計算</title>
+  <link rel="stylesheet" href="./styles.css">
+  <script defer src="./holidays.js"></script>
+  <script defer src="./calculator.js"></script>
+  <script defer src="./app.js"></script>
+</head>
+<body>
+<main>
+  <section class="card" aria-labelledby="input-title">
+    <div class="section-heading"><h2 id="input-title">シフトを入力</h2><button type="button" id="sample" class="secondary">入力例を使う</button></div>
+    <form id="shift-form" novalidate>
+      <label for="year">勤務年 <span class="hint">（年のない日付に適用）</span></label>
+      <input id="year" name="year" type="number" inputmode="numeric" required aria-describedby="year-help">
+      <p id="year-help" class="hint">年をまたぐ場合は、翌年の行を「2027/01/03」のように年付きで入力してください。</p>
+      <label for="shifts">シフト表</label>
+      <textarea id="shifts" name="shifts" rows="8" spellcheck="false" placeholder="日付　勤務時間　労働時間　休憩時間&#10;10/05(月)　12:00～18:00　06:00　00:00&#10;10/10(土)　17:00～20:00　03:00　00:00" aria-describedby="input-help"></textarea>
+      <p id="input-help" class="hint">タブ・スペース区切りに対応。休憩がある日は、休憩を除いた勤務区間を別々の行に入力してください。</p>
+      <button type="submit" class="primary">給料を計算する <span aria-hidden="true">→</span></button>
+    </form>
+    <noscript><p class="message">計算にはJavaScriptを有効にしてください。</p></noscript>
+    <div id="messages" role="alert" hidden></div>
+  </section>
+  <section id="results" class="card" aria-labelledby="result-title" hidden>
+    <h2 id="result-title">計算結果</h2>
+    <div class="total"><span>給料見込み額</span><strong id="total-wage"></strong><span class="hint">入力したすべての勤務分・控除前</span></div>
+    <div class="metrics"><div>合計勤務時間<strong id="total-time"></strong></div><div>勤務日数<strong id="total-days"></strong></div></div>
+    <h3>日別内訳</h3><div id="daily-results"></div>
+    <p class="hint">円未満は表示時に四捨五入します。合計は丸める前の金額から計算するため、日別表示の合計と異なる場合があります。</p>
+  </section>
+  <details class="card rules"><summary>時給と計算ルール</summary>
+    <dl><div><dt>平日 13:00より前</dt><dd>1,140円</dd></div><div><dt>平日 13:00〜17:00</dt><dd>1,190円</dd></div><div><dt>平日 17:00以降</dt><dd>1,290円</dd></div><div><dt>土・日・祝日</dt><dd>1,290円</dd></div></dl>
+    <p class="hint">時間帯をまたぐ勤務は分単位で分割計算。深夜手当・時間外手当・交通費・税金などは含みません。日をまたぐ勤務は、日付ごとに24:00で区切って入力してください。</p>
+    <p class="hint">祝日データ：<span id="holiday-range"></span>年（<a href="https://www8.cao.go.jp/chosei/shukujitsu/gaiyou.html">内閣府「国民の祝日について」</a>を加工）。対象外の年は計算できません。</p>
+  </details>
+  <footer>入力したシフトはブラウザ内で処理します。外部への送信・保存は行いません。</footer>
+</main>
+</body>
+</html>
