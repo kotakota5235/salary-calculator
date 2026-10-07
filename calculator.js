@@ -37,7 +37,9 @@
         if (shifts.some(s => s.key === key && s.start < end && start < s.end)) throw new Error('同じ日の勤務時間が重複しています。');
         const holiday = holidays.dates[key] || '';
         const special = Boolean(holiday) || [0, 6].includes(date.getUTCDay());
-        const bands = special ? [[0, 1440, 1290, '土日祝']] : [[0, 780, 1140, '13:00より前'], [780, 1020, 1190, '13:00〜17:00'], [1020, 1440, 1290, '17:00以降']];
+        // 2026年10月から基本時給を改定。時間帯・土日祝の加算額は維持。
+        const base = key >= '2026-10-01' ? 1195 : 1140;
+        const bands = special ? [[0, 1440, base + 150, '土日祝']] : [[0, 780, base, '13:00より前'], [780, 1020, base + 50, '13:00〜17:00'], [1020, 1440, base + 150, '17:00以降']];
         const breakdown = bands.map(([from, to, rate, label]) => ({minutes: Math.max(0, Math.min(end, to) - Math.max(start, from)), rate, label})).filter(b => b.minutes);
         shifts.push({key, date, start, end, holiday, special, breakdown, units: breakdown.reduce((sum, b) => sum + b.minutes * b.rate, 0)});
       } catch (error) { errors.push(`${index + 1}行目：${error.message}`); }
